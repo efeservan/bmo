@@ -1,5 +1,6 @@
 package com.example.bmo_genc.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,9 +20,35 @@ public class University {
 
     private String universityName;
 
-//    @OneToMany
-//    @JoinColumn(name = "faculty_id", nullable = false)
+    @OneToMany(mappedBy = "university")
+    @JsonIgnore
+    private List<Student> students;
+
+//    @OneToMany(mappedBy = "university")
 //    private List<Faculty> faculties;
 
+    public Long getId() {
+        return id;
+    }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUniversityName() {
+        return universityName;
+    }
+
+    public void setUniversityName(String universityName) {
+        this.universityName = universityName;
+    }
+
+
+    public List<Student> getStudents() {
+        return students;
+    }
+
+    public void setStudents(List<Student> students) {
+        this.students = students;
+    }
 }
