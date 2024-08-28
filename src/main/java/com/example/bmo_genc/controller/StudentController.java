@@ -8,9 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/api/students")
+@RequestMapping("/api/student")
 public class StudentController {
 
     @Autowired
@@ -22,10 +23,18 @@ public class StudentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdStudentDTO);
     }
 
-    @GetMapping("/")
+    @PutMapping("/update")
+    public ResponseEntity<StudentDTO> updateStudent(@RequestBody StudentDTO studentDTO){
+        try{
+            return ResponseEntity.ok(studentService.updateStudent(studentDTO));
+        } catch (NoSuchElementException e){
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/getAll")
     public ResponseEntity<List<StudentDTO>> getAllStudents() {
         List<StudentDTO> students = studentService.getAllStudents();
         return ResponseEntity.ok(students);
     }
-
 }

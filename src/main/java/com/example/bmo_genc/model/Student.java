@@ -38,9 +38,15 @@ public class Student {
 
     private String bloodGroup;
 
-    private int classDegree;
+    private Long classDegree;
 
     private Long phoneNumber;
+
+    private String email;
+
+    private String faculty;
+
+    private String department;
 
     @ManyToOne
     @JoinColumn(name = "university_id", nullable = false)
@@ -90,7 +96,7 @@ public class Student {
         return bloodGroup;
     }
 
-    public int getClassDegree() {
+    public Long getClassDegree() {
         return classDegree;
     }
 
@@ -146,7 +152,7 @@ public class Student {
         this.bloodGroup = bloodGroup;
     }
 
-    public void setClassDegree(int classDegree) {
+    public void setClassDegree(Long classDegree) {
         this.classDegree = classDegree;
     }
 
@@ -156,5 +162,29 @@ public class Student {
 
     public void setUniversity(University university) {
         this.university = university;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getFaculty() {
+        return faculty;
+    }
+
+    public void setFaculty(String faculty) {
+        this.faculty = faculty;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
     }
 }
