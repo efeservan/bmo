@@ -1,7 +1,6 @@
 package com.example.bmo_genc.service;
 
 import com.example.bmo_genc.dto.StudentDTO;
-import com.example.bmo_genc.dto.UniversityDTO;
 import com.example.bmo_genc.mapper.StudentMapper;
 import com.example.bmo_genc.model.Student;
 import com.example.bmo_genc.model.University;
@@ -11,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -28,10 +28,10 @@ public class StudentService {
 
     public StudentDTO addStudent(StudentDTO studentDTO) {
         // Üniversiteyi adından bul veya yeni bir tane oluştur
-        Optional<University> universityOpt = universityRepository.findByUniversityName(studentDTO.getUniversity().getUniversityName());
+        Optional<University> universityOpt = universityRepository.findByUniversityName(studentDTO.getUniversityName());
         University university = universityOpt.orElseGet(() -> {
             University newUniversity = new University();
-            newUniversity.setUniversityName(studentDTO.getUniversity().getUniversityName());
+            newUniversity.setUniversityName(studentDTO.getUniversityName());
             return universityRepository.save(newUniversity);
         });
 
@@ -48,27 +48,55 @@ public class StudentService {
         return studentMapper.toStudentDTO(savedStudent);
     }
 
+    public StudentDTO updateStudent(StudentDTO studentDTO) {
+        // Öğrenci ID’sini al
+        Long studentId = studentDTO.getId(); // ID alanının DTO’da mevcut olduğundan emin ol
+
+        if (studentId == null) {
+            throw new IllegalArgumentException("Student ID cannot be null");
+        }
+        // Öğrenciyi veritabanında bul
+        Student existingStudent = studentRepository.findById(studentId)
+                .orElseThrow(() -> new NoSuchElementException("Student with ID " + studentId + " not found"));
+
+        // Güncellenmiş bilgileri mevcut öğrenciye aktar
+        existingStudent.setTcNo(studentDTO.getTcNo());
+        existingStudent.setName(studentDTO.getName());
+        existingStudent.setSurname(studentDTO.getSurname());
+        existingStudent.setEmail(studentDTO.getEmail());
+        existingStudent.setFatherName(studentDTO.getFatherName());
+        existingStudent.setMotherName(studentDTO.getMotherName());
+        existingStudent.setHomeTown(studentDTO.getHomeTown());
+        existingStudent.setBirthDate(studentDTO.getBirthDate());
+        existingStudent.setCity(studentDTO.getCity());
+        existingStudent.setFaculty(studentDTO.getFaculty());
+        existingStudent.setDepartment(studentDTO.getDepartment());
+        existingStudent.setClassDegree(studentDTO.getClassDegree());
+        existingStudent.setPhoneNumber(studentDTO.getPhoneNumber());
+
+        // Üniversiteyi güncelle veya oluştur
+        University university = universityRepository.findByUniversityName(studentDTO.getUniversityName())
+                .orElseGet(() -> {
+                    University newUniversity = new University();
+                    newUniversity.setUniversityName(studentDTO.getUniversityName());
+                    return universityRepository.save(newUniversity);
+                });
+
+        existingStudent.setUniversity(university);
+
+        // Güncellenmiş öğrenciyi kaydet
+        Student updatedStudent = studentRepository.save(existingStudent);
+
+        // DTO’ya çevirip döndür
+        return studentMapper.toStudentDTO(updatedStudent);
+    }
+
     public List<StudentDTO> getAllStudents() {
+        // MapStruct ile otomatik dönüşüm
         return studentRepository.findAll().stream()
-                .map(this::toStudentDTO)
+                .map(studentMapper::toStudentDTO)
                 .collect(Collectors.toList());
     }
-
-    private StudentDTO toStudentDTO(Student student) {
-        StudentDTO studentDTO = new StudentDTO();
-
-        // Basit alanları mapliyoruz
-        studentDTO.setTcNo(student.getTcNo());
-        studentDTO.setName(student.getName());
-
-        // University dönüşümü
-        if (student.getUniversity() != null) {
-            UniversityDTO universityDTO = new UniversityDTO();
-            universityDTO.setUniversityName(student.getUniversity().getUniversityName());
-            studentDTO.setUniversity(universityDTO);
-        }
-
-        return studentDTO;
-    }
 }
+
 
