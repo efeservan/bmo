@@ -17,14 +17,16 @@ import java.util.stream.Collectors;
 @Service
 public class StudentService {
 
-    @Autowired
-    private StudentRepository studentRepository;
+    private final StudentRepository studentRepository;
+    private final UniversityRepository universityRepository;
+    private final StudentMapper studentMapper;
 
-    @Autowired
-    private UniversityRepository universityRepository;
-
-    @Autowired
-    private StudentMapper studentMapper;
+//    @Autowired
+    public StudentService(StudentRepository studentRepository, UniversityRepository universityRepository, StudentMapper studentMapper) {
+        this.studentRepository = studentRepository;
+        this.universityRepository = universityRepository;
+        this.studentMapper = studentMapper;
+    }
 
     public StudentDTO addStudent(StudentDTO studentDTO) {
         // Üniversiteyi adından bul veya yeni bir tane oluştur

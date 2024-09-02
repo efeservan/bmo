@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface StudentMapper {
 
-    @Mapping(source = "universityName", target = "university")
+    @Mapping(source = "universityName", target = "university.universityName")
     Student toStudent(StudentDTO studentDTO);
 
     @Mapping(source = "university.universityName", target = "universityName")

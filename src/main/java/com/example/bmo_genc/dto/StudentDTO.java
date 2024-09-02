@@ -25,6 +25,14 @@ public class StudentDTO {
     private Long phoneNumber;
     private String universityName;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Long getTcNo() {
         return tcNo;
     }
@@ -49,20 +57,20 @@ public class StudentDTO {
         this.name = name;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getSurname() {
         return surname;
     }
 
     public void setSurname(String surname) {
         this.surname = surname;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getFatherName() {
@@ -147,14 +155,6 @@ public class StudentDTO {
 
     public String getUniversityName() {
         return universityName;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public void setUniversityName(String universityName) {

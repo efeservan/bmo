@@ -1,6 +1,6 @@
 package com.example.bmo_genc.controller;
 
-import com.example.bmo_genc.model.Department;
+import com.example.bmo_genc.dto.DepartmentDTO;
 import com.example.bmo_genc.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +15,15 @@ public class DepartmentController {
     @Autowired
     private DepartmentService departmentService;
 
-    @GetMapping
-    public ResponseEntity<List<Department>> getAllDepartments(){
-        List<Department> departments = departmentService.getAllDepartments();
+    @PostMapping("/add")
+    public ResponseEntity<DepartmentDTO> addDepartment(@RequestBody DepartmentDTO departmentDTO) {
+        DepartmentDTO createdDepartment = departmentService.addDepartment(departmentDTO);
+        return ResponseEntity.ok(createdDepartment);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<DepartmentDTO>> getAllDepartments(){
+        List<DepartmentDTO> departments = departmentService.getAllDepartments();
         return ResponseEntity.ok(departments);
     }
 }
