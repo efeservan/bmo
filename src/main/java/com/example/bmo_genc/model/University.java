@@ -24,9 +24,6 @@ public class University {
     @JsonIgnore
     private List<Student> students;
 
-//    @OneToMany(mappedBy = "university")
-//    private List<Faculty> faculties;
-
     public Long getId() {
         return id;
     }
@@ -42,7 +39,6 @@ public class University {
     public void setUniversityName(String universityName) {
         this.universityName = universityName;
     }
-
 
     public List<Student> getStudents() {
         return students;

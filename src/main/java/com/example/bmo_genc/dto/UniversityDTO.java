@@ -14,5 +14,4 @@ public class UniversityDTO {
     public void setUniversityName(String universityName) {
         this.universityName = universityName;
     }
-
 }
