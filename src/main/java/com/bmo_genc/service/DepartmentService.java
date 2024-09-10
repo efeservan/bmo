@@ -11,19 +11,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
 public class DepartmentService {
 
-    @Autowired
-    private DepartmentRepository departmentRepository;
+    private final DepartmentRepository departmentRepository;
+    private final FacultyRepository facultyRepository;
+    private final DepartmentMapper departmentMapper;
 
     @Autowired
-    private FacultyRepository facultyRepository;
-
-    @Autowired
-    private DepartmentMapper departmentMapper;
+    public DepartmentService(DepartmentRepository departmentRepository, FacultyRepository facultyRepository, DepartmentMapper departmentMapper) {
+        this.departmentRepository = departmentRepository;
+        this.facultyRepository = facultyRepository;
+        this.departmentMapper = departmentMapper;
+    }
 
     public DepartmentDTO addDepartment(DepartmentDTO departmentDTO) {
         Faculty faculty = facultyRepository.findById(departmentDTO.getFacultyId())
@@ -40,5 +43,12 @@ public class DepartmentService {
         return departmentRepository.findAll().stream()
                 .map(departmentMapper::toDepartmentDTO)
                 .collect(Collectors.toList());
+    }
+
+    public void deleteDepartment(Long id) {
+        if(!departmentRepository.existsById(id)) {
+            throw new NoSuchElementException("Department with ID " + id + " not found");
+        }
+        departmentRepository.deleteById(id);
     }
 }
