@@ -6,11 +6,14 @@ import com.bmo_genc.model.Student;
 import com.bmo_genc.model.University;
 import com.bmo_genc.repository.StudentRepository;
 import com.bmo_genc.repository.UniversityRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,48 +22,80 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final UniversityRepository universityRepository;
     private final StudentMapper studentMapper;
+    private final ExecutorService executorService;
 
-//    @Autowired
+    @Autowired
     public StudentService(StudentRepository studentRepository, UniversityRepository universityRepository, StudentMapper studentMapper) {
         this.studentRepository = studentRepository;
         this.universityRepository = universityRepository;
         this.studentMapper = studentMapper;
+        // Thread havuzunu burada oluşturuyoruz
+        this.executorService = Executors.newFixedThreadPool(5);
+    }
+
+    // Asenkron öğrenci kaydetme işlemi
+    public void addStudentAsync(StudentDTO studentDTO) {
+        executorService.submit(() -> addStudent(studentDTO)); // Metodu arka planda çalıştır.
     }
 
     public StudentDTO addStudent(StudentDTO studentDTO) {
-        // Üniversiteyi adından bul veya yeni bir tane oluştur
-        Optional<University> universityOpt = universityRepository.findByUniversityName(studentDTO.getUniversityName());
-        University university = universityOpt.orElseGet(() -> {
-            University newUniversity = new University();
-            newUniversity.setUniversityName(studentDTO.getUniversityName());
-            return universityRepository.save(newUniversity);
-        });
+        University university = findOrCreateUniversity(studentDTO.getUniversityName());
 
-        // StudentDTO'yu Student nesnesine dönüştür
         Student student = studentMapper.toStudent(studentDTO);
-
-        // Üniversiteyi atıyoruz
         student.setUniversity(university);
 
-        // Öğrenciyi kaydediyoruz
         Student savedStudent = studentRepository.save(student);
-
-        // Kaydedilen öğrenciyi DTO'ya çevirip dönüyoruz
         return studentMapper.toStudentDTO(savedStudent);
     }
 
     public StudentDTO updateStudent(StudentDTO studentDTO) {
-        // Öğrenci ID’sini al
-        Long studentId = studentDTO.getId(); // ID alanının DTO’da mevcut olduğundan emin ol
-
+        Long studentId = studentDTO.getId();
         if (studentId == null) {
             throw new IllegalArgumentException("Student ID cannot be null");
         }
-        // Öğrenciyi veritabanında bul
+
         Student existingStudent = studentRepository.findById(studentId)
                 .orElseThrow(() -> new NoSuchElementException("Student with ID " + studentId + " not found"));
 
         // Güncellenmiş bilgileri mevcut öğrenciye aktar
+        updateStudentInfo(existingStudent, studentDTO);
+
+        University university = findOrCreateUniversity(studentDTO.getUniversityName());
+        existingStudent.setUniversity(university);
+
+        Student updatedStudent = studentRepository.save(existingStudent);
+        return studentMapper.toStudentDTO(updatedStudent);
+    }
+
+    public List<StudentDTO> getAllStudents() {
+        return studentRepository.findAll().stream()
+                .map(studentMapper::toStudentDTO)
+                .collect(Collectors.toList());
+    }
+
+    public StudentDTO findStudentById(Long id) {
+        Student searchingStudent = studentRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Student with ID " + id + " not found"));
+        return studentMapper.toStudentDTO(searchingStudent);
+    }
+
+    public void deleteStudent(Long id) {
+        if(!studentRepository.existsById(id)) {
+            throw new IllegalArgumentException("Student with ID " + id + " not found");
+        }
+        studentRepository.deleteById(id);
+    }
+
+    private University findOrCreateUniversity(String universityName) {
+        return universityRepository.findByUniversityName(universityName)
+                .orElseGet(() -> {
+                    University newUniversity = new University();
+                    newUniversity.setUniversityName(universityName);
+                    return universityRepository.save(newUniversity);
+                });
+    }
+
+    private void updateStudentInfo(Student existingStudent, StudentDTO studentDTO) {
         existingStudent.setTcNo(studentDTO.getTcNo());
         existingStudent.setName(studentDTO.getName());
         existingStudent.setSurname(studentDTO.getSurname());
@@ -74,30 +109,5 @@ public class StudentService {
         existingStudent.setDepartment(studentDTO.getDepartment());
         existingStudent.setClassDegree(studentDTO.getClassDegree());
         existingStudent.setPhoneNumber(studentDTO.getPhoneNumber());
-
-        // Üniversiteyi güncelle veya oluştur
-        University university = universityRepository.findByUniversityName(studentDTO.getUniversityName())
-                .orElseGet(() -> {
-                    University newUniversity = new University();
-                    newUniversity.setUniversityName(studentDTO.getUniversityName());
-                    return universityRepository.save(newUniversity);
-                });
-
-        existingStudent.setUniversity(university);
-
-        // Güncellenmiş öğrenciyi kaydet
-        Student updatedStudent = studentRepository.save(existingStudent);
-
-        // DTO’ya çevirip döndür
-        return studentMapper.toStudentDTO(updatedStudent);
-    }
-
-    public List<StudentDTO> getAllStudents() {
-        // MapStruct ile otomatik dönüşüm
-        return studentRepository.findAll().stream()
-                .map(studentMapper::toStudentDTO)
-                .collect(Collectors.toList());
     }
 }
-
-

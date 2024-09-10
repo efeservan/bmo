@@ -15,12 +15,10 @@ import java.util.stream.Collectors;
 @Service
 public class UniversityService {
 
-    @Autowired
     private final UniversityRepository universityRepository;
-
-    @Autowired
     private final UniversityMapper universityMapper;
 
+    @Autowired
     public UniversityService(UniversityRepository universityRepository, UniversityMapper universityMapper) {
         this.universityRepository = universityRepository;
         this.universityMapper = universityMapper;

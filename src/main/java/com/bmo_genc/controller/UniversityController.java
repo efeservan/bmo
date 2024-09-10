@@ -40,7 +40,7 @@ public class UniversityController {
         return ResponseEntity.ok(updatedUniversityDTO);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteUniversity(@PathVariable Long id){
         universityService.deleteUniversity(id);
         return ResponseEntity.noContent().build();

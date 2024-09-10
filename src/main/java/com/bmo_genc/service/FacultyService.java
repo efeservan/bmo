@@ -15,7 +15,6 @@ import java.util.NoSuchElementException;
 public class FacultyService {
 
     private final FacultyRepository facultyRepository;
-
     private final FacultyMapper facultyMapper;
 
     @Autowired
