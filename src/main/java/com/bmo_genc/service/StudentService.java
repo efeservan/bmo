@@ -2,8 +2,10 @@ package com.bmo_genc.service;
 
 import com.bmo_genc.dto.StudentDTO;
 import com.bmo_genc.mapper.StudentMapper;
+import com.bmo_genc.model.Mentor;
 import com.bmo_genc.model.Student;
 import com.bmo_genc.model.University;
+import com.bmo_genc.repository.MentorRepository;
 import com.bmo_genc.repository.StudentRepository;
 import com.bmo_genc.repository.UniversityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,15 +25,17 @@ public class StudentService {
     private final UniversityRepository universityRepository;
     private final StudentMapper studentMapper;
     private final ExecutorService executorService;
+    private final MentorRepository mentorRepository;
 
     @Autowired
-    public StudentService(StudentRepository studentRepository, UniversityRepository universityRepository, StudentMapper studentMapper) {
+    public StudentService(StudentRepository studentRepository, UniversityRepository universityRepository, StudentMapper studentMapper, ExecutorService executorService, MentorRepository mentorRepository) {
         this.studentRepository = studentRepository;
         this.universityRepository = universityRepository;
         this.studentMapper = studentMapper;
-        // Thread havuzunu burada oluşturuyoruz
-        this.executorService = Executors.newFixedThreadPool(5);
+        this.executorService = executorService;
+        this.mentorRepository = mentorRepository;
     }
+
 
     // Asenkron öğrenci kaydetme işlemi
     public void addStudentAsync(StudentDTO studentDTO) {
@@ -40,10 +44,17 @@ public class StudentService {
 
     public StudentDTO addStudent(StudentDTO studentDTO) {
         University university = findOrCreateUniversity(studentDTO.getUniversityName());
-
+        // Mentor kontrolü
+        Mentor mentor = mentorRepository.findByFullName(studentDTO.getMentorName())
+                .orElseGet(() -> {
+                    Mentor newMentor = new Mentor();
+                    newMentor.setFullName(studentDTO.getMentorName());
+                    mentorRepository.save(newMentor);
+                    return newMentor;
+                });
         Student student = studentMapper.toStudent(studentDTO);
         student.setUniversity(university);
-
+        student.setMentor(mentor);
         Student savedStudent = studentRepository.save(student);
         return studentMapper.toStudentDTO(savedStudent);
     }
@@ -62,6 +73,15 @@ public class StudentService {
 
         University university = findOrCreateUniversity(studentDTO.getUniversityName());
         existingStudent.setUniversity(university);
+
+        Mentor mentor = mentorRepository.findByFullName(studentDTO.getMentorName())
+                .orElseGet(() -> {
+                    Mentor newMentor = new Mentor();
+                    newMentor.setFullName(studentDTO.getMentorName());
+                    mentorRepository.save(newMentor);
+                    return newMentor;
+                });
+        existingStudent.setMentor(mentor);
 
         Student updatedStudent = studentRepository.save(existingStudent);
         return studentMapper.toStudentDTO(updatedStudent);
