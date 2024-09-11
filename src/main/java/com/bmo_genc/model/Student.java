@@ -52,6 +52,10 @@ public class Student {
     @JoinColumn(name = "university_id", nullable = false)
     private University university;
 
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "mentor_id")
+    private Mentor mentor;
+
     public Long getId() {
         return id;
     }
@@ -186,5 +190,13 @@ public class Student {
 
     public void setUniversity(University university) {
         this.university = university;
+    }
+
+    public Mentor getMentor() {
+        return mentor;
+    }
+
+    public void setMentor(Mentor mentor) {
+        this.mentor = mentor;
     }
 }
