@@ -14,11 +14,7 @@ import java.util.List;
 public class FacultyController {
 
     @Autowired
-    private final FacultyService facultyService;
-
-    public FacultyController(FacultyService facultyService) {
-        this.facultyService = facultyService;
-    }
+    private FacultyService facultyService;
 
     @PostMapping("/add")
     public ResponseEntity<FacultyDTO> addFaculty(@RequestBody FacultyDTO facultyDTO) {

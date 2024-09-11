@@ -26,4 +26,10 @@ public class DepartmentController {
         List<DepartmentDTO> departments = departmentService.getAllDepartments();
         return ResponseEntity.ok(departments);
     }
+
+    @DeleteMapping("delete/{id}")
+    public ResponseEntity<Void> deleteDepartment(@PathVariable Long id){
+        departmentService.deleteDepartment(id);
+        return ResponseEntity.ok().build();
+    }
 }

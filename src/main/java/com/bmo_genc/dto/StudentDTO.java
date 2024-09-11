@@ -24,6 +24,7 @@ public class StudentDTO {
     private Long classDegree;
     private Long phoneNumber;
     private String universityName;
+    private String mentorName;
 
     public Long getId() {
         return id;
@@ -159,5 +160,13 @@ public class StudentDTO {
 
     public void setUniversityName(String universityName) {
         this.universityName = universityName;
+    }
+
+    public String getMentorName() {
+        return mentorName;
+    }
+
+    public void setMentorName(String mentorName) {
+        this.mentorName = mentorName;
     }
 }
